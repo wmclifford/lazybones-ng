@@ -30,8 +30,10 @@ version = "0.8.4-SNAPSHOT"
 // These settings mimic the old client VM behavior. Should result in faster startup.
 applicationDefaultJvmArgs = ["-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=3"]
 
-sourceCompatibility = "1.6"
-targetCompatibility = "1.6"
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 ext {
     groovyVersion = "2.4.3"
