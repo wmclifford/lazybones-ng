@@ -21,7 +21,7 @@ plugins {
 
 apply plugin: "groovy"
 apply plugin: "application"
-apply plugin: "codenarc"
+// apply plugin: "codenarc"
 
 applicationName = "lazybones"
 mainClassName = "uk.co.cacoethes.lazybones.LazybonesMain"
@@ -178,12 +178,12 @@ task packageReports(type: Zip) {
 
 integTest.finalizedBy packageReports
 
-codenarc {
-    configFile = rootProject.file("codenarc.groovy")
-}
-codenarcMain.excludes = ["**/NameType.groovy"]
-codenarcTest.enabled = false
-codenarcIntegTest.enabled = false
+//codenarc {
+//    configFile = rootProject.file("codenarc.groovy")
+//}
+//codenarcMain.excludes = ["**/NameType.groovy"]
+//codenarcTest.enabled = false
+//codenarcIntegTest.enabled = false
 
 /** Cobertura (Coverage) Configuration */
 cobertura {
