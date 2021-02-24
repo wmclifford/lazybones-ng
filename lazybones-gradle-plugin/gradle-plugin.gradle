@@ -1,5 +1,6 @@
 plugins {
     id 'groovy'
+    id 'java-gradle-plugin'
     id 'maven-publish'
 }
 
@@ -10,6 +11,8 @@ version = "1.2.5-SNAPSHOT"
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
 }
 
 repositories {
@@ -27,44 +30,40 @@ dependencies {
     testImplementation "cglib:cglib-nodep:2.2.2"
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
+// Disable publishing task(s) if no credentials are defined.
+tasks.withType(PublishToMavenRepository) {
+    onlyIf {
+        project.hasProperty('repo.username') && project.hasProperty('repo.apiKey')
+    }
 }
 
-task javadocJar(type: Jar, dependsOn: groovydoc) {
-    archiveClassifier.set('javadoc')
-    from groovydoc.destinationDir
-}
+publishing {
+    publications {
+        pluginLibrary(MavenPublication) {
+            from components.java
+        }
+    }
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-uploadArchives { task ->
-    repositories {
-        maven {
-
-            // Not every build user will want to publish the plugin, so defer
-            // resolution of the publishing credentials.
-            gradle.taskGraph.whenReady { graph ->
-                if (graph.hasTask(task)) {
-                    verifyProperty(project, 'repo.url')
-                    verifyProperty(project, 'repo.username')
-                    verifyProperty(project, 'repo.apiKey')
-
-                    repository url: "https://api.bintray.com/maven/pledbrook/plugins/lazybones-gradle", {
-                        authentication userName: project.'repo.username', password: project.'repo.apiKey'
-                    }
+    // Only include repositories for publication if credentials are defined.
+    if (project.hasProperty('repo.username') && project.hasProperty('repo.apiKey')) {
+        repositories {
+            maven {
+                credentials {
+                    username project.findProperty('repo.username')
+                    password project.findProperty('repo.apiKey')
                 }
+                name = 'lazybonesBintrayRepo'
+                url = 'https://api.bintray.com/maven/pledbrook/plugins/lazybones-gradle'
             }
         }
     }
 }
 
-void verifyProperty(Project proj, String name) {
-    if (!project.hasProperty(name)) {
-        throw new GradleException("You must define the project property '$name'")
+gradlePlugin {
+    plugins {
+        autoUpdate {
+            id = 'uk.co.cacoethes.lazybones-templates'
+            implementationClass = 'uk.co.cacoethes.gradle.LazybonesTemplatesPlugin'
+        }
     }
 }
