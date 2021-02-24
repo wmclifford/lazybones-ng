@@ -1,15 +1,16 @@
-include "lazybones-gradle-plugin",
-        "lazybones-templates",
-        "lazybones-app"
+pluginManagement {
+    repositories {
+        // For development versions which are locally installed
+        mavenLocal()
+        // Public releases
+        gradlePluginPortal()
+    }
+}
 
 rootProject.name = "lazybones"
 
-// Change names of build files in sub-projects for easier navigation in IDEs
-// and text editors.
-renameChildBuildFiles(rootProject)
-
-void renameChildBuildFiles(parentProject) {
-    for (p in parentProject.children) {
-        p.buildFileName = (p.name - "lazybones-") + ".gradle"
-    }
-}
+// Due to the nature of the sub-project dependencies, the build of the Gradle
+// plugin should be done separately and published (locally while under
+// development) before building the app and templates.
+include 'lazybones-templates'
+include 'lazybones-app'
