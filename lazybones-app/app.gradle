@@ -14,13 +14,13 @@ buildscript {
 import uk.co.cacoethes.gradle.tasks.BintrayGenericUpload
 
 plugins {
+    id 'groovy'
+    id 'application'
     id "net.saliman.cobertura" version "4.0.0"
     id "uk.co.cacoethes.lazybones-templates" version "1.2.3"
     id "io.sdkman.vendors" version "1.1.0"
 }
 
-apply plugin: "groovy"
-apply plugin: "application"
 // apply plugin: "codenarc"
 
 applicationName = "lazybones"
@@ -45,7 +45,7 @@ ext {
 sourceSets {
     integTest {
         groovy {
-            srcDir "src/integTest/groovy"
+            srcDirs = ["src/integTest/groovy"]
             compileClasspath += sourceSets.main.output
         }
         resources {

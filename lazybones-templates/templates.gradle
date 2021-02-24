@@ -7,13 +7,15 @@ buildscript {
     }
 
     dependencies {
-        classpath "uk.co.cacoethes:lazybones-gradle:1.2.4"
+        classpath "uk.co.cacoethes:lazybones-gradle:1.2.3"
     }
 }
 
 import uk.co.cacoethes.gradle.tasks.BintrayGenericUpload
 
-apply plugin: "uk.co.cacoethes.lazybones-templates"
+plugins {
+    id 'uk.co.cacoethes.lazybones-templates' version '1.2.3'
+}
 
 lazybones {
     licenses = ["Apache-2.0"]

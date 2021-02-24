@@ -1,5 +1,7 @@
-apply plugin: "groovy"
-apply plugin: "maven-publish"
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+}
 
 archivesBaseName = "lazybones-gradle"
 group = "uk.co.cacoethes"
@@ -26,12 +28,12 @@ dependencies {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: groovydoc) {
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from groovydoc.destinationDir
 }
 
