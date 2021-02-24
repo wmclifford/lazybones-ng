@@ -14,7 +14,7 @@ buildscript {
 import uk.co.cacoethes.gradle.tasks.BintrayGenericUpload
 
 plugins {
-    id "net.saliman.cobertura" version "2.2.7"
+    id "net.saliman.cobertura" version "2.5.4"
     id "uk.co.cacoethes.lazybones-templates" version "1.2.3"
     id "io.sdkman.vendors" version "1.1.0"
 }
@@ -139,7 +139,7 @@ task configureCachePath {
 //for a single test, you can run "gradle -DintegTest.single=<test name>"
 task integTest(type: Test) {
     dependsOn "installDist", "configureCachePath", "installAllTemplates"
-    inputs.dir sourceSets.main.output.classesDir
+    inputs.dir sourceSets.main.output.classesDirs
     inputs.dir sourceSets.main.output.resourcesDir
 
     mustRunAfter "test"
@@ -165,7 +165,7 @@ task integTest(type: Test) {
         systemProperty "lazybones.cache.dir", project.cachePath
     }
 
-    setTestClassesDirs(files(sourceSets.integTest.output.classesDir))
+    setTestClassesDirs(files(sourceSets.integTest.output.classesDirs))
     classpath = sourceSets.integTest.runtimeClasspath
 
     include "**/*Spec*"
