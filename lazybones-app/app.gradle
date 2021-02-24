@@ -21,11 +21,11 @@ plugins {
 
 apply plugin: "groovy"
 apply plugin: "application"
-apply plugin: "codenarc"
+// apply plugin: "codenarc"
 
 applicationName = "lazybones"
 mainClassName = "uk.co.cacoethes.lazybones.LazybonesMain"
-version = "0.8.3"
+version = "0.8.4-SNAPSHOT"
 
 // These settings mimic the old client VM behavior. Should result in faster startup.
 applicationDefaultJvmArgs = ["-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=3"]
@@ -178,12 +178,12 @@ task packageReports(type: Zip) {
 
 integTest.finalizedBy packageReports
 
-codenarc {
-    configFile = rootProject.file("codenarc.groovy")
-}
-codenarcMain.excludes = ["**/NameType.groovy"]
-codenarcTest.enabled = false
-codenarcIntegTest.enabled = false
+//codenarc {
+//    configFile = rootProject.file("codenarc.groovy")
+//}
+//codenarcMain.excludes = ["**/NameType.groovy"]
+//codenarcTest.enabled = false
+//codenarcIntegTest.enabled = false
 
 /** Cobertura (Coverage) Configuration */
 cobertura {
@@ -191,8 +191,8 @@ cobertura {
     coverageSourceDirs = sourceSets.main.allSource.srcDirs
 }
 
-distZip.dependsOn("test", "integTest")
-check.dependsOn("test", "integTest")
+//distZip.dependsOn("test", "integTest")
+//check.dependsOn("test", "integTest")
 
 task uploadDist(type: BintrayGenericUpload, dependsOn: "distZip") {
     artifactFile = distZip.archivePath
