@@ -18,7 +18,7 @@ plugins {
     id 'application'
     id "net.saliman.cobertura" version "4.0.0"
     id "uk.co.cacoethes.lazybones-templates" version "1.2.3"
-    id "io.sdkman.vendors" version "1.1.0"
+    id "io.sdkman.vendors" version "2.0.0"
 }
 
 // apply plugin: "codenarc"
@@ -36,7 +36,7 @@ java {
 }
 
 ext {
-    groovyVersion = "2.4.3"
+    groovyVersion = "2.4.15"
     cachePath = new File(System.getProperty("user.home"), ".lazybones/templates").absolutePath
     isCiBuild = System.getProperty("drone.io") as boolean
     testWorkDir = file("$buildDir/testWork").path
@@ -49,7 +49,7 @@ sourceSets {
             compileClasspath += sourceSets.main.output
         }
         resources {
-            srcDir "src/integTest/resources"
+            srcDirs = ["src/integTest/resources"]
         }
     }
 }
@@ -81,7 +81,7 @@ dependencies {
         exclude module: "groovy-all"
     }
 
-    integTestImplementation "org.codehaus.groovy:groovy-all:2.4.3",
+    integTestImplementation "org.codehaus.groovy:groovy-all:${groovyVersion}",
                      "commons-io:commons-io:2.4",
                      "co.freeside:betamax:1.1.2",
                      "org.littleshoot:littleproxy:1.1.0-beta1"
@@ -97,7 +97,7 @@ idea {
 
 jar {
     manifest {
-        attributes("Implementation-Title": "Lazybones", "Implementation-Version": archiveVersion)
+        attributes("Implementation-Title": "Lazybones", "Implementation-Version": project.version)
     }
 }
 
@@ -142,7 +142,9 @@ task integTest(type: Test) {
     inputs.dir sourceSets.main.output.classesDirs
     inputs.dir sourceSets.main.output.resourcesDir
 
-    mustRunAfter "test"
+    testClassesDirs = sourceSets.integTest.output.classesDirs
+    classpath = sourceSets.integTest.runtimeClasspath
+    shouldRunAfter "test"
     ignoreFailures = true
 
     systemProperty "integration.test", "true"
@@ -165,7 +167,7 @@ task integTest(type: Test) {
         systemProperty "lazybones.cache.dir", project.cachePath
     }
 
-    setTestClassesDirs(files(sourceSets.integTest.output.classesDirs))
+    testClassesDirs = files(sourceSets.integTest.output.classesDirs)
     classpath = sourceSets.integTest.runtimeClasspath
 
     include "**/*Spec*"
@@ -197,8 +199,8 @@ cobertura {
 //check.dependsOn("test", "integTest")
 
 task uploadDist(type: BintrayGenericUpload, dependsOn: "distZip") {
-    artifactFile = distZip.archivePath
-    artifactUrlPath = "lazybones/${version}/${distZip.archiveName}"
+    artifactFile = distZip.archiveFile.get().asFile
+    artifactUrlPath = "lazybones/${version}/${distZip.archiveFileName}"
     repositoryName = "pledbrook/lazybones-templates"
     packageName = "lazybones"
     licenses = ["Apache-2.0"]
@@ -213,25 +215,21 @@ sdkMajorRelease.mustRunAfter uploadDist
 // We also lazily configure the cache directory system property when running
 // the integration tests. This is to ensure that the test-tmpl template gets
 // installed into the cache directory being used by the integration tests.
-gradle.taskGraph.whenReady { graph ->
-    if (graph.hasTask(":lazybones-app:uploadDist")) {
-        verifyProperty(project, 'repo.username')
-        verifyProperty(project, 'repo.apiKey')
-
-        uploadDist.username = project.'repo.username'
-        uploadDist.apiKey = project.'repo.apiKey'
+def uploadDistTaskInit = { TaskExecutionGraph graph ->
+    // Lazy init uploadDist task
+    final def repoUsername = project.findProperty('repo.username') ?: ''
+    final def repoApiKey = project.findProperty('repo.apiKey') ?: ''
+    if (graph.hasTask(':lazybones-app:uploadDist') && repoUsername && repoApiKey) {
+        uploadDist.username = repoUsername
+        uploadDist.apiKey = repoApiKey
     }
 
-    if (graph.hasTask(":lazybones-app:sdkMajorRelease")) {
-        verifyProperty(project, 'gvm.consumerKey')
-        verifyProperty(project, 'gvm.consumerToken')
-        sdkMajorRelease.consumerKey = project.'gvm.consumerKey'
-        sdkMajorRelease.consumerToken = project.'gvm.consumerToken'
+    // Lazy configure cache directory system property (for integration tests)
+    final def gvmConsumerKey = project.findProperty('gvm.consumerKey') ?: ''
+    final def gvmConsumerToken = project.findProperty('gvm.consumerToken') ?: ''
+    if (graph.hasTask(':lazybones-app:sdkMajorRelease') && gvmConsumerKey && gvmConsumerToken) {
+        sdkMajorRelease.consumerKey = gvmConsumerKey
+        sdkMajorRelease.consumerToken = gvmConsumerToken
     }
-}
-
-void verifyProperty(Project proj, String name) {
-    if (!project.hasProperty(name)) {
-        throw new GradleException("You must define the project property '$name'")
-    }
-}
+} as org.gradle.api.Action<TaskExecutionGraph>
+gradle.taskGraph.whenReady uploadDistTaskInit
