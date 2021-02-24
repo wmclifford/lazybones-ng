@@ -191,8 +191,8 @@ cobertura {
     coverageSourceDirs = sourceSets.main.allSource.srcDirs
 }
 
-distZip.dependsOn("test", "integTest")
-check.dependsOn("test", "integTest")
+//distZip.dependsOn("test", "integTest")
+//check.dependsOn("test", "integTest")
 
 task uploadDist(type: BintrayGenericUpload, dependsOn: "distZip") {
     artifactFile = distZip.archivePath
