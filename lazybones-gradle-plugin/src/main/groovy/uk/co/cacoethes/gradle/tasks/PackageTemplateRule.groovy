@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.Rule
 import org.gradle.api.Task
 import org.gradle.api.tasks.bundling.Zip
+import uk.co.cacoethes.gradle.lazybones.LazybonesConventions
 import uk.co.cacoethes.gradle.lazybones.TemplateConvention
 import uk.co.cacoethes.gradle.util.NameConverter
 
@@ -77,22 +78,41 @@ class PackageTemplateRule implements Rule {
      * the task itself is of type org.gradle.api.tasks.bundling.Zip.
      */
     protected Task createTask(String taskName, String tmplName, File tmplDir) {
+        // For the sake of brevity
+        final lzb = project.extensions.lazybones as LazybonesConventions
         final tmplConvention = findTemplateConvention(tmplName)
         final packageExcludes = tmplConvention?.packageExcludes ?: project.extensions.lazybones.packageExcludes
         final fileModes = tmplConvention?.fileModes ?: project.extensions.lazybones.fileModes
 
+        // So we can populate these into place and not have to spell it out each time below.
+        final archBaseName = "${tmplName}${lzb.packageNameSuffix}"
+        final destDir = lzb.packagesDir
+        final archVer = tmplConvention?.version ?: project.file("${tmplDir}/VERSION").text.trim()
+
+        // Identify if we are using an archaic version of Gradle
+        final gradleMajMinPat = project.gradle.gradleVersion.tokenize('.').collect { it.toInteger() }
+        final isOldGradle = (gradleMajMinPat[0] < 5 || (gradleMajMinPat[0] == 5 && gradleMajMinPat[1] < 1))
+
         validateTemplateVersion tmplConvention, tmplDir, tmplName
 
         final task = project.tasks.create(taskName, Zip)
-        task.with {
-            conventionMapping.map("baseName") { tmplName + project.extensions.lazybones.packageNameSuffix }
-            conventionMapping.map("destinationDir") { project.extensions.lazybones.packagesDir }
-
-            conventionMapping.map("version") {
-                tmplConvention?.version ?: project.file("$tmplDir/VERSION").text.trim()
+        // This trick works because the closure will not be evaluated as part of the
+        // build of the plugin, but rather it will be evaluated at runtime when this
+        // is used in a build.
+        if (isOldGradle) {
+            task.with {
+                setBaseName(archBaseName)
+                setDestinationDir(destDir)
+                setVersion(archVer)
+                includeEmptyDirs = true
             }
-
-            includeEmptyDirs = true
+        } else {
+            task.with {
+                archiveBaseName.set(archBaseName)
+                destinationDirectory.set(destDir)
+                archiveVersion.set(archVer)
+                includeEmptyDirs = true
+            }
         }
 
         // Include directories and files that are not explicitly excluded and
