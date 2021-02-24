@@ -43,11 +43,11 @@ ext {
 sourceSets {
     integTest {
         groovy {
-            srcDir "src/integ/groovy"
+            srcDir "src/integTest/groovy"
             compileClasspath += sourceSets.main.output
         }
         resources {
-            srcDir "src/integ/resources"
+            srcDir "src/integTest/resources"
         }
     }
 }
@@ -163,7 +163,7 @@ task integTest(type: Test) {
         systemProperty "lazybones.cache.dir", project.cachePath
     }
 
-    testClassesDir = sourceSets.integTest.output.classesDir
+    setTestClassesDirs(files(sourceSets.integTest.output.classesDir))
     classpath = sourceSets.integTest.runtimeClasspath
 
     include "**/*Spec*"
