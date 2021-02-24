@@ -1,5 +1,5 @@
 apply plugin: "groovy"
-apply plugin: "maven"
+apply plugin: "maven-publish"
 
 archivesBaseName = "lazybones-gradle"
 group = "uk.co.cacoethes"
@@ -17,21 +17,21 @@ repositories {
 dependencies {
     // gradleApi() drags in the Groovy bundled with Gradle, so always a good idea
     // to specify localGroovy() too
-    compile localGroovy(), gradleApi()
+    implementation localGroovy(), gradleApi()
 
-    testCompile "org.spockframework:spock-core:0.7-groovy-2.0", {
+    testImplementation "org.spockframework:spock-core:0.7-groovy-2.0", {
         exclude module: "groovy-all"
     }
-    testCompile "cglib:cglib-nodep:2.2.2"
+    testImplementation "cglib:cglib-nodep:2.2.2"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: groovydoc) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from groovydoc.destinationDir
 }
 
@@ -42,7 +42,7 @@ artifacts {
 
 uploadArchives { task ->
     repositories {
-        mavenDeployer {
+        maven {
 
             // Not every build user will want to publish the plugin, so defer
             // resolution of the publishing credentials.

@@ -2,7 +2,7 @@ buildscript {
     repositories {
         mavenLocal()
         maven {
-            url "http://dl.bintray.com/pledbrook/plugins"
+            url "https://dl.bintray.com/pledbrook/plugins"
         }
     }
 

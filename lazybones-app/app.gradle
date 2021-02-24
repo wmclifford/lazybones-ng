@@ -14,7 +14,7 @@ buildscript {
 import uk.co.cacoethes.gradle.tasks.BintrayGenericUpload
 
 plugins {
-    id "net.saliman.cobertura" version "2.5.4"
+    id "net.saliman.cobertura" version "4.0.0"
     id "uk.co.cacoethes.lazybones-templates" version "1.2.3"
     id "io.sdkman.vendors" version "1.1.0"
 }
@@ -65,9 +65,9 @@ repositories {
 }
 
 dependencies {
-    compile "org.codehaus.groovy:groovy:${groovyVersion}"
+    implementation "org.codehaus.groovy:groovy:${groovyVersion}"
 
-    compile "commons-io:commons-io:2.4",
+    implementation "commons-io:commons-io:2.4",
             "org.codehaus.groovy:groovy-json:${groovyVersion}",
             "org.codehaus.groovy:groovy-templates:${groovyVersion}",
             "org.apache.commons:commons-compress:1.5",
@@ -75,18 +75,18 @@ dependencies {
             "net.sf.jopt-simple:jopt-simple:4.4",
             "org.ini4j:ini4j:0.5.2"
 
-    runtime "org.apache.ivy:ivy:2.3.0"
+    runtimeOnly "org.apache.ivy:ivy:2.3.0"
 
-    testCompile "org.spockframework:spock-core:0.7-groovy-2.0", {
+    testImplementation "org.spockframework:spock-core:0.7-groovy-2.0", {
         exclude module: "groovy-all"
     }
 
-    integTestCompile "org.codehaus.groovy:groovy-all:2.4.3",
+    integTestImplementation "org.codehaus.groovy:groovy-all:2.4.3",
                      "commons-io:commons-io:2.4",
                      "co.freeside:betamax:1.1.2",
                      "org.littleshoot:littleproxy:1.1.0-beta1"
 
-    integTestCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+    integTestImplementation "org.spockframework:spock-core:1.0-groovy-2.4"
 }
 
 idea {
@@ -97,7 +97,7 @@ idea {
 
 jar {
     manifest {
-        attributes("Implementation-Title": "Lazybones", "Implementation-Version": version)
+        attributes("Implementation-Title": "Lazybones", "Implementation-Version": archiveVersion)
     }
 }
 
@@ -174,8 +174,8 @@ task integTest(type: Test) {
 
 task packageReports(type: Zip) {
     from "build/reports"
-    archiveName = "reports.zip"
-    destinationDir = buildDir
+    archiveFileName = "reports.zip"
+    destinationDirectory = buildDir
 }
 
 integTest.finalizedBy packageReports
