@@ -25,7 +25,7 @@ apply plugin: "application"
 
 applicationName = "lazybones"
 mainClassName = "uk.co.cacoethes.lazybones.LazybonesMain"
-version = "0.8.3"
+version = "0.8.4-SNAPSHOT"
 
 // These settings mimic the old client VM behavior. Should result in faster startup.
 applicationDefaultJvmArgs = ["-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=3"]
