@@ -12,5 +12,5 @@ rootProject.name = "lazybones"
 // Due to the nature of the sub-project dependencies, the build of the Gradle
 // plugin should be done separately and published (locally while under
 // development) before building the app and templates.
-include 'lazybones-templates'
-include 'lazybones-app'
+include("lazybones-templates")
+include("lazybones-app")
