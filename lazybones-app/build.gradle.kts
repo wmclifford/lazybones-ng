@@ -24,15 +24,14 @@ plugins {
 // apply plugin: "codenarc"
 
 application {
+    // These settings mimic the old client VM behavior. Should result in faster startup.
+    applicationDefaultJvmArgs = mutableListOf(
+            "-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=3")
     applicationName = "lazybones"
     mainClass.set("uk.co.cacoethes.lazybones.LazybonesMain")
 }
 
 version = "0.8.4-SNAPSHOT"
-
-// These settings mimic the old client VM behavior. Should result in faster startup.
-val applicationDefaultJvmArgs = mutableListOf(
-        "-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=3")
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
